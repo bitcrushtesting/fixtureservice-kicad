@@ -1,0 +1,31 @@
+[project]
+name = "fixtureservice-kicad"
+version = "0.1.0"
+description = "KiCad plugin for the Bitcrush fixture service"
+license = { text = "GPL-3.0-or-later" }
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "kicad-python>=0.9.2"]
+
+[tool.pytest.ini_options]
+pythonpath = ["plugin", "."]
+testpaths = ["tests"]
+markers = [
+    "kicad: needs a running KiCad with the IPC API server enabled and a board open",
+    "service: needs the fixture service at FIXTURESERVICE_URL",
+]
+addopts = "-m 'not kicad and not service'"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+extraPaths = ["plugin"]
+pythonVersion = "3.9"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "I"]

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://go.kicad.org/pcm/schemas/v1",
+  "name": "Bitcrush Fixture Service",
+  "description": "DFT check and a binding bed-of-nails test fixture quote for the open board, then order in the browser.",
+  "description_full": "Checks the board open in the PCB editor for bed-of-nails testability and returns a binding quote for a test fixture, without leaving KiCad.\n\nThe plugin sends the board over HTTPS to the Bitcrush fixture service, which reads it, answers and deletes the file. It shows the fixture price, lead time, probe plate size and the DFT findings by severity. Clicking a finding selects the footprint it names on the board. Fix the board, re-check, and open the quote in your browser to order.\n\nNeeds KiCad 9 or later with the IPC API server enabled (Preferences > Plugins). The plugin reads and selects; it never changes the board.",
+  "identifier": "com.bitcrushtesting.fixture-service",
+  "type": "plugin",
+  "author": {
+    "name": "Bitcrush Testing",
+    "contact": {
+      "web": "https://bitcrushtesting.com"
+    }
+  },
+  "license": "GPL-3.0",
+  "resources": {
+    "homepage": "https://bitcrushtesting.com",
+    "Source code": "https://github.com/bitcrushtesting/fixtureservice-kicad",
+    "Issues": "https://github.com/bitcrushtesting/fixtureservice-kicad/issues"
+  },
+  "tags": ["fabrication", "testing", "dft", "fixture", "bed-of-nails"],
+  "versions": [
+    {
+      "version": "0.1.0",
+      "status": "testing",
+      "kicad_version": "9.0",
+      "runtime": "ipc"
+    }
+  ]
+}

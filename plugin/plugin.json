@@ -1,0 +1,22 @@
+{
+  "$schema": "https://go.kicad.org/api/schemas/v1",
+  "identifier": "com.bitcrushtesting.fixture-service",
+  "name": "Bitcrush Fixture Service",
+  "description": "DFT check and a binding bed-of-nails test fixture quote for the open board, then order in the browser.",
+  "runtime": {
+    "type": "python",
+    "min_version": "3.9"
+  },
+  "actions": [
+    {
+      "identifier": "check-board",
+      "name": "Fixture quote and DFT check",
+      "description": "Send the open board to the Bitcrush fixture service for a DFT check and a fixture quote",
+      "show-button": true,
+      "scopes": ["pcb"],
+      "entrypoint": "fixture_check.py",
+      "icons-light": ["icon-24.png", "icon-48.png"],
+      "icons-dark": ["icon-dark-24.png", "icon-dark-48.png"]
+    }
+  ]
+}
