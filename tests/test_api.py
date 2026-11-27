@@ -60,28 +60,28 @@ def test_an_unreachable_service_says_so():
         Client("http://127.0.0.1:9/fixture").analyze("b.kicad_pcb", b"x")
 
 
-def test_the_quote_goes_back_with_the_analysis_and_seal_untouched(service):
-    client = Client(service.url)
+def test_the_board_is_handed_off_with_the_analysis_and_seal_untouched(service):
+    client = Client(service.url, "de")
     analyzed = client.analyze("b.kicad_pcb", b"x")
-    stored = client.store_quote(analyzed)
+    code = client.hand_off(analyzed)
     path, headers, body = service.requests[-1]
-    assert path == "/api/quote"
+    assert path == "/api/handoff"
     assert headers["content-type"] == "application/json"
-    sent = json.loads(body)
-    assert sent == {
+    assert json.loads(body) == {
         "analysis": analyzed["analysis"],
         "options": analyzed["options"],
         "boardDocument": analyzed["boardDocument"],
         "seal": "s3al",
     }
-    assert client.checkout_url(stored["id"], stored["token"]) == f"{service.url}/checkout?quote=q1&token=t%2F1"
+    # The quote page, not the checkout; the code in the fragment, never sent to a server.
+    assert client.board_page_url(code) == f"{service.url}/?lang=de#board=c0de_-x"
 
 
-def test_a_quote_reply_without_a_token_is_an_error(service):
-    service.reply("/api/quote", 200, {"id": "q1"})
+def test_a_handoff_reply_without_a_code_is_an_error(service):
+    service.reply("/api/handoff", 200, {"expiresInSeconds": 900})
     client = Client(service.url)
-    with pytest.raises(ServiceError, match="could not be saved"):
-        client.store_quote(client.analyze("b.kicad_pcb", b"x"))
+    with pytest.raises(ServiceError, match="could not be handed to the browser"):
+        client.hand_off(client.analyze("b.kicad_pcb", b"x"))
 
 
 def test_https_trusts_the_public_roots_even_where_python_brings_none():

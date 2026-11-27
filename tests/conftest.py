@@ -51,7 +51,7 @@ class FakeService:
         # path -> (status, headers, body) or a callable building one
         self.routes: Dict[str, Callable[[bytes], Tuple[int, Dict[str, str], bytes]]] = {
             "/api/analyze": lambda _b: (200, {}, json.dumps(ANALYZE_REPLY).encode()),
-            "/api/quote": lambda _b: (200, {}, json.dumps({"id": "q1", "token": "t/1"}).encode()),
+            "/api/handoff": lambda _b: (200, {}, json.dumps({"code": "c0de_-x", "expiresInSeconds": 900}).encode()),
         }
         self.url = ""
 

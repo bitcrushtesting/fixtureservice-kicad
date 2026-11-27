@@ -183,9 +183,11 @@ class ResultsFrame(wx.Frame):
     def start_handoff(self) -> None:
         def opened(url: str) -> None:
             self.open_url(url)
-            self.status.SetLabel("The quote is saved and open in your browser.")
+            self.status.SetLabel(
+                "The board is open in your browser: the fixture, the options and the price. Order from there."
+            )
 
-        self._run(self.session.checkout_url, opened, "Saving the quote…")
+        self._run(self.session.browser_url, opened, "Opening the board in your browser…")
 
     # -- showing a result ---------------------------------------------------------
 
@@ -222,7 +224,7 @@ class ResultsFrame(wx.Frame):
             self.list.SetItemBackgroundColour(row, wx.Colour(*TINT[f.severity]))
             self.list.SetItemTextColour(row, wx.Colour(20, 20, 20))
         self.status.SetLabel(
-            "Checked. Fix what you need in KiCad, then Re-check, or open the quote in your browser to order."
+            "Checked. Fix what you need in KiCad, then Re-check, or open the board in your browser to see the fixture."
         )
         self.order.Enable(True)
         self.Layout()

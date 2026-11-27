@@ -21,7 +21,6 @@ class Session:
         self.client = client
         self._read_board = read_board
         self._reply: Optional[Dict[str, Any]] = None
-        self._checkout: Optional[str] = None
         self.result: Optional[Result] = None
 
     def check(self) -> Result:
@@ -33,15 +32,15 @@ class Session:
         name, data = self._read_board()
         reply = self.client.analyze(name, data)
         self._reply = reply
-        self._checkout = None  # a quote stored for the old board is not this one's
         self.result = parse_result(name, reply)
         return self.result
 
-    def checkout_url(self) -> str:
-        """Store the quote once and return the browser checkout for it."""
+    def browser_url(self) -> str:
+        """Hand the checked board to the quote page and return its address.
+
+        A new hand-off on every click: one lives only minutes on the service,
+        and a click after a coffee should still open the board.
+        """
         if self._reply is None:
             raise RuntimeError("check() first")
-        if self._checkout is None:
-            stored = self.client.store_quote(self._reply)
-            self._checkout = self.client.checkout_url(stored["id"], stored["token"])
-        return self._checkout
+        return self.client.board_page_url(self.client.hand_off(self._reply))

@@ -1,6 +1,6 @@
 [project]
 name = "fixtureservice-kicad"
-version = "0.1.1"
+version = "0.1.2"
 description = "KiCad plugin for the Bitcrush fixture service"
 license = { text = "GPL-3.0-or-later" }
 requires-python = ">=3.9"

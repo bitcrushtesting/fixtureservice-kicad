@@ -188,23 +188,30 @@ class Client:
             )
         return reply
 
-    def store_quote(self, analyzed: Dict[str, Any], options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """POST /api/quote: the binding quote, stored, with its access token.
+    def hand_off(self, analyzed: Dict[str, Any]) -> str:
+        """POST /api/handoff: park the checked board for the quote page; returns its code.
 
         The analysis goes back exactly as it came, with the seal the service
-        put on it; a changed analysis is refused, which is the point.
+        put on it; a changed analysis is refused, which is the point. Nothing
+        is saved as a quote: the service holds it in memory for a few minutes
+        so the browser can show the board as after an upload.
         """
         payload = {
             "analysis": analyzed["analysis"],
-            "options": options if options is not None else analyzed.get("options") or {},
+            "options": analyzed.get("options") or {},
             "boardDocument": analyzed["boardDocument"],
             "seal": analyzed["seal"],
         }
         body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
-        reply = self._request("/api/quote", body, "application/json", config.JSON_TIMEOUT_S)
-        if not isinstance(reply.get("id"), str) or not isinstance(reply.get("token"), str):
-            raise ServiceError("The quote could not be saved. Please try again.")
-        return reply
+        reply = self._request("/api/handoff", body, "application/json", config.JSON_TIMEOUT_S)
+        code = reply.get("code")
+        if not isinstance(code, str) or not code:
+            raise ServiceError("The board could not be handed to the browser. Please try again.")
+        return code
 
-    def checkout_url(self, quote_id: str, token: str) -> str:
-        return f"{self.base_url}/checkout?{urlencode({'quote': quote_id, 'token': token})}"
+    def board_page_url(self, code: str) -> str:
+        """The quote page, opened on the handed-off board, in the plugin's language.
+
+        The code goes in the fragment, which browsers never send to a server.
+        """
+        return f"{self.base_url}/?{urlencode({'lang': self.language})}#{urlencode({'board': code})}"

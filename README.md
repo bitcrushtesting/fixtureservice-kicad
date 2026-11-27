@@ -51,7 +51,9 @@ distribution's `python3-wxgtk4.0` package first if it does.
    probed, the probe plate size, and the DFT findings by severity.
 4. Click a finding to select the footprints it names on the board.
 5. Change the board, then **Re-check**.
-6. **Open in browser** saves the quote and opens the checkout.
+6. **Open in browser** opens the board on the quote page, as if you had
+   uploaded it there: the fixture drawing, the options and the price. Order
+   from there.
 
 ## How it works
 

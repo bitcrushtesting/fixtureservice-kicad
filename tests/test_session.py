@@ -7,17 +7,19 @@ from fixtureservice_kicad.api import Client
 from fixtureservice_kicad.session import Session
 
 
-def test_check_then_one_stored_quote_per_board(service):
+def test_check_then_hand_the_board_to_the_browser(service):
     board = FakeBoard()
     s = Session(Client(service.url), lambda: board_source.read_board(board))
     with pytest.raises(RuntimeError):
-        s.checkout_url()
+        s.browser_url()
     r = s.check()
     assert r.board_name == "demo.kicad_pcb"
-    url = s.checkout_url()
-    assert s.checkout_url() == url, "a second click reuses the stored quote"
-    assert [p for p, _h, _b in service.requests] == ["/api/analyze", "/api/quote"]
+    url = s.browser_url()
+    assert url.startswith(service.url + "/?lang=") and url.endswith("#board=c0de_-x")
+    assert "checkout" not in url, "the customer sees the fixture before anything else"
+    assert [p for p, _h, _b in service.requests] == ["/api/analyze", "/api/handoff"]
 
     s.check()  # the board changed in KiCad
-    s.checkout_url()
-    assert [p for p, _h, _b in service.requests][-2:] == ["/api/analyze", "/api/quote"], "a new board, a new quote"
+    s.browser_url()
+    sent = [b for p, _h, b in service.requests if p == "/api/handoff"]
+    assert len(sent) == 2, "every click hands off afresh"

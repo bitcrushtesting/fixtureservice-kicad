@@ -8,13 +8,15 @@ import json
 import os
 from typing import Optional
 
-NOTICE_VERSION = 1
+NOTICE_VERSION = 2  # 2: the hand-off to the browser
 
 NOTICE = (
     "This sends the open board to the Bitcrush fixture service ({host}) over HTTPS "
     "for a DFT check and a fixture quote.\n\n"
     "The service reads the board, answers, and deletes the file before the answer "
-    "is sent. Nothing is stored unless you go on to save a quote in the browser.\n\n"
+    "is sent. Open in browser hands what was read from it (not the file) to the "
+    "quote page, held in the service's memory for 15 minutes and on no disk. "
+    "Nothing is stored unless you go on to save a quote in the browser.\n\n"
     "Need an NDA first? Ask for one on the website before you upload."
 )
 

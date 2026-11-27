@@ -43,15 +43,25 @@ def _board_file() -> Path:
 
 
 @pytest.mark.service
-def test_a_real_board_gets_a_quote_and_a_checkout():
+def test_a_real_board_gets_a_quote_and_opens_on_the_quote_page():
     board = _board_file()
     client = Client(_service_url(), "en")
     session = Session(client, lambda: (board.name, board.read_bytes()))
     result = session.check()
     assert result.total_net_eur and result.total_net_eur > 0
     assert result.test_points is not None and result.plate_mm is not None
-    url = session.checkout_url()
-    assert url.startswith(client.base_url + "/checkout?quote=")
+    url = session.browser_url()
+    assert url.startswith(client.base_url + "/?lang=en#board=")
+    # The page fetches it back exactly as it was parked.
+    import json
+    from urllib.request import Request
+
+    from fixtureservice_kicad.api import _urlopen
+
+    code = url.split("#board=", 1)[1]
+    with _urlopen(Request(f"{client.base_url}/api/handoff/{code}"), timeout=30) as res:
+        parked = json.loads(res.read())
+    assert parked["seal"] == session._reply["seal"]
 
 
 @pytest.mark.service
@@ -63,7 +73,7 @@ def test_a_tampered_analysis_is_refused_by_the_real_service():
     from fixtureservice_kicad.api import ServiceError
 
     with pytest.raises(ServiceError) as caught:
-        client.store_quote(reply)
+        client.hand_off(reply)
     assert caught.value.status in (400, 403, 422)
 
 
