@@ -12,11 +12,16 @@ from urllib.parse import urlsplit
 from . import __version__
 
 PLUGIN_ID = "com.bitcrushtesting.fixture-service"
-DEFAULT_BASE_URL = "https://bitcrushtesting.com"
+PRODUCTION_URL = "https://bitcrushtesting.com"
+STAGING_URL = "https://staging.bitcrushtesting.com"
+# Staging until the service launches: payments there run in test mode, so an
+# order placed from the plugin costs nothing. Switch to PRODUCTION_URL in the
+# release that goes with the launch.
+DEFAULT_BASE_URL = STAGING_URL
 
 # A developer setting, not a user one: there is deliberately no field in the
-# UI that sends a board to another host. Staging and a local `npm run dev`
-# (http://localhost:3000/fixture) are reached through this variable.
+# UI that sends a board to another host. A local `npm run dev:all`
+# (http://127.0.0.1:5173) is reached through this variable.
 ENV_BASE_URL = "FIXTURESERVICE_URL"
 
 # The service refuses larger uploads with 413; checking first saves sending

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Bitcrush Testing
 # SPDX-License-Identifier: GPL-3.0-or-later
 import json
+import ssl
 
 import pytest
 from fixtureservice_kicad import config
@@ -81,3 +82,33 @@ def test_a_quote_reply_without_a_token_is_an_error(service):
     client = Client(service.url)
     with pytest.raises(ServiceError, match="could not be saved"):
         client.store_quote(client.analyze("b.kicad_pcb", b"x"))
+
+
+def test_https_trusts_the_public_roots_even_where_python_brings_none():
+    # KiCad's own Python on macOS loads zero roots by default; certifi's are added.
+    pytest.importorskip("certifi")
+    from fixtureservice_kicad.api import tls_context
+
+    assert tls_context().cert_store_stats()["x509_ca"] > 100
+    assert tls_context().verify_mode == ssl.CERT_REQUIRED and tls_context().check_hostname
+
+
+def test_a_certificate_that_fails_verification_is_explained_not_just_reported():
+    from urllib.error import URLError
+
+    def opener(req, timeout):
+        raise URLError(ssl.SSLCertVerificationError(1, "certificate verify failed"))
+
+    with pytest.raises(ServiceError, match="certificate could not be verified, so nothing was sent"):
+        Client("https://staging.bitcrushtesting.com", "en", opener=opener).analyze("b.kicad_pcb", b"(kicad_pcb)")
+
+
+@pytest.mark.network
+def test_the_default_service_answers_over_verified_https():
+    """Through the plugin's own opener, as KiCad's Python will make the request."""
+    from urllib.request import Request
+
+    from fixtureservice_kicad.api import _urlopen
+
+    with _urlopen(Request(config.DEFAULT_BASE_URL + "/api/health"), timeout=20) as res:
+        assert res.status == 200 and json.loads(res.read())["ok"] is True

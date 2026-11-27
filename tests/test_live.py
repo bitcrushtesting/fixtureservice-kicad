@@ -4,7 +4,7 @@
 
 Not run by default (see pyproject's addopts). Run them with
 
-    FIXTURESERVICE_URL=http://localhost:5173/fixture \\
+    FIXTURESERVICE_URL=http://127.0.0.1:5173 \\
     FIXTURE_TEST_BOARD=/path/to/board.kicad_pcb \\
         pytest -m service
 
@@ -30,7 +30,7 @@ def _service_url() -> str:
     url = os.environ.get(config.ENV_BASE_URL)
     if not url:
         pytest.skip(f"{config.ENV_BASE_URL} is not set")
-    if url.rstrip("/") == config.DEFAULT_BASE_URL:
+    if url.rstrip("/") == config.PRODUCTION_URL:
         pytest.skip("not against production")
     return config.base_url()
 

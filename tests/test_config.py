@@ -5,7 +5,7 @@ from fixtureservice_kicad import config
 
 
 def test_production_unless_told_otherwise():
-    assert config.base_url({}) == "https://bitcrushtesting.com"
+    assert config.base_url({}) == config.DEFAULT_BASE_URL == "https://staging.bitcrushtesting.com"
 
 
 @pytest.mark.parametrize(

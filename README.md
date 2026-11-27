@@ -16,6 +16,10 @@ browser to order.
   [bitcrushtesting.com](https://bitcrushtesting.com), which reads it, answers
   and deletes the file. Nothing is stored unless you save a quote in the
   browser. See the [privacy page](https://bitcrushtesting.com/privacy).
+- **Staging for now.** Until the service launches, the plugin talks to
+  `https://staging.bitcrushtesting.com`, where payments run in test mode and
+  no order is real. The launch release switches `DEFAULT_BASE_URL` in
+  `config.py` to production.
 
 ## Requirements
 
@@ -92,6 +96,10 @@ FIXTURE_TEST_BOARD=/path/to/board.kicad_pcb \
 
 `FIXTURESERVICE_URL` also points the plugin itself at a development or
 staging service. It accepts HTTPS, or HTTP to this machine only.
+
+HTTPS is verified against the system's roots plus certifi's. KiCad's own
+Python on macOS loads no roots at all, so without certifi every request fails
+with `CERTIFICATE_VERIFY_FAILED`; `pytest -m network` checks the real thing.
 
 The service rejects multipart uploads whose `Origin` is not its own (its
 CSRF check), so the client sends the service's origin, as a browser would.

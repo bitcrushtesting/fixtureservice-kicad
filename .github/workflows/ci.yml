@@ -21,9 +21,11 @@ jobs:
       # uv brings its own interpreter: the runners no longer carry 3.9.
       - uses: astral-sh/setup-uv@v6
       - run: uv venv --python ${{ matrix.python }} .venv
-      - run: uv pip install --python .venv/bin/python pytest jsonschema "kicad-python>=0.9.2"
+      - run: uv pip install --python .venv/bin/python pytest jsonschema certifi "kicad-python>=0.9.2"
       - run: uvx ruff check plugin tests tools
       - run: .venv/bin/python -m pytest -q
+      # The real thing, read only: the default service over verified HTTPS.
+      - run: .venv/bin/python -m pytest -q -m network
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

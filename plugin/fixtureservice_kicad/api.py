@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import socket
+import ssl
 import uuid
 from typing import Any, Callable, Dict, Optional
 from urllib.error import HTTPError, URLError
@@ -20,6 +21,35 @@ from urllib.request import Request, urlopen
 from . import config
 
 Opener = Callable[..., Any]
+
+_tls: Optional[ssl.SSLContext] = None
+
+
+def tls_context() -> ssl.SSLContext:
+    """The system's trusted roots, plus Mozilla's from certifi.
+
+    KiCad's bundled Python on macOS (and python.org builds generally) has no
+    root certificates of its own, so the default context trusts nothing and
+    every HTTPS request fails verification. certifi, installed by KiCad from
+    requirements.txt, fills that in. On top of the system store rather than
+    instead of it, so a company's own root (an inspecting proxy) still counts
+    where the system Python knows it.
+    """
+    global _tls
+    if _tls is None:
+        ctx = ssl.create_default_context()
+        try:
+            import certifi
+
+            ctx.load_verify_locations(cafile=certifi.where())
+        except (ImportError, OSError):
+            pass
+        _tls = ctx
+    return _tls
+
+
+def _urlopen(req: Request, timeout: float) -> Any:
+    return urlopen(req, timeout=timeout, context=tls_context())
 
 # The keys of /api/analyze's reply that the plugin reads or hands back.
 ANALYZE_KEYS = ("analysis", "options", "plan", "quote", "boardDocument", "seal")
@@ -63,7 +93,7 @@ class Client:
         self,
         base_url: str,
         language: str = "en",
-        opener: Opener = urlopen,
+        opener: Opener = _urlopen,
     ):
         self.base_url = base_url.rstrip("/")
         self.language = language
@@ -95,6 +125,13 @@ class Client:
         except (socket.timeout, TimeoutError):
             raise ServiceError("The fixture service took too long to answer. Please try again.") from None
         except URLError as err:
+            if isinstance(err.reason, ssl.SSLCertVerificationError):
+                raise ServiceError(
+                    "The fixture service's certificate could not be verified, so nothing was sent. "
+                    "A network that inspects HTTPS can cause this; try another network, or ask "
+                    f"your IT to trust {config.origin_of(self.base_url)}. "
+                    f"({getattr(err.reason, 'verify_message', None) or err.reason})"
+                ) from None
             raise ServiceError(f"Could not reach the fixture service ({err.reason}).") from None
         try:
             reply = json.loads(raw.decode("utf-8"))

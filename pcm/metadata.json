@@ -17,10 +17,16 @@
     "Source code": "https://github.com/bitcrushtesting/fixtureservice-kicad",
     "Issues": "https://github.com/bitcrushtesting/fixtureservice-kicad/issues"
   },
-  "tags": ["fabrication", "testing", "dft", "fixture", "bed-of-nails"],
+  "tags": [
+    "fabrication",
+    "testing",
+    "dft",
+    "fixture",
+    "bed-of-nails"
+  ],
   "versions": [
     {
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "testing",
       "kicad_version": "9.0",
       "runtime": "ipc"

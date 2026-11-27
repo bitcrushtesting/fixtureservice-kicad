@@ -1,6 +1,6 @@
 [project]
 name = "fixtureservice-kicad"
-version = "0.1.0"
+version = "0.1.1"
 description = "KiCad plugin for the Bitcrush fixture service"
 license = { text = "GPL-3.0-or-later" }
 requires-python = ">=3.9"
@@ -14,8 +14,9 @@ testpaths = ["tests"]
 markers = [
     "kicad: needs a running KiCad with the IPC API server enabled and a board open",
     "service: needs the fixture service at FIXTURESERVICE_URL",
+    "network: reaches the default service over the internet (read only)",
 ]
-addopts = "-m 'not kicad and not service'"
+addopts = "-m 'not kicad and not service and not network'"
 
 [tool.pyright]
 venvPath = "."
