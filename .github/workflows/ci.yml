@@ -18,12 +18,12 @@ jobs:
         python: ["3.9", "3.12"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python }}
-      - run: pip install pytest jsonschema "kicad-python>=0.9.2" ruff
-      - run: ruff check plugin tests tools
-      - run: pytest -q
+      # uv brings its own interpreter: the runners no longer carry 3.9.
+      - uses: astral-sh/setup-uv@v6
+      - run: uv venv --python ${{ matrix.python }} .venv
+      - run: uv pip install --python .venv/bin/python pytest jsonschema "kicad-python>=0.9.2"
+      - run: uvx ruff check plugin tests tools
+      - run: .venv/bin/python -m pytest -q
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
